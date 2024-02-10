@@ -24,10 +24,11 @@ def compute_rmd160(pubkey):
     return rmd160.hexdigest()
 
 def compute_address(rmd160):
-    """Compute the Bitcoin address corresponding to a RIPEMD-160 hash."""
-    version = b'\x00'
-    checksum = sha256(sha256(version + rmd160).digest()).digest()[:4]
-    return base58.b58encode(version + rmd160 + checksum)
+    """Compute the Bitcoin address corresponding to a given RIPEMD-160 hash."""
+    version = b'\x00'  # Bitcoin mainnet version byte
+    checksum = hashlib.sha256(hashlib.sha256(version + rmd160).digest()).digest()[:4]
+    address = base58.b58encode(version + rmd160 + checksum)
+    return address.decode()  # Decode bytes to string
 
 def baby_step(start, end, db):
     """Compute the baby steps and store them in a database."""
