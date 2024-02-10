@@ -54,8 +54,8 @@ def main():
     try:
         db = pl.DB('bsgs.db', create_if_missing=True)
         with Pool(processes=8) as pool:
-            pool.apply_async(baby_step, (1, 2**128, db))
-            pool.apply_async(giant_step, (2**128, 2**256, db))
+            pool.apply_async(baby_step, (2**65, 2**66, db))  # Baby steps range
+            pool.apply_async(giant_step, (2**65, 2**66, db))  # Giant steps range
             pool.close()
             pool.join()
     except Exception as e:
