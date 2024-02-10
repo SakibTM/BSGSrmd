@@ -40,23 +40,25 @@ def baby_step(start, end, db):
             b.put(rmd160.encode(), str(i).encode())
         sk = SigningKey.from_secret_exponent(i+1, curve=SECP256k1)
 
-def giant_step(start, end, db):
+def giant_step(start, end, db, target_rmd160):
     """Compute the giant steps and look for matches in the database."""
     sk = SigningKey.from_secret_exponent(start, curve=SECP256k1)
     for i in range(start, end+1):
         pubkey = b'\x04' + sk.verifying_key.to_string()
         rmd160 = compute_rmd160(pubkey)
-        if db.get(rmd160.encode()):
+        if rmd160 == target_rmd160:
             logging.info(f'Match found: {rmd160}')
+            break
         sk = SigningKey.from_secret_exponent(i+1, curve=SECP256k1)
 
 def main():
     """Main function."""
     try:
         db = pl.DB('bsgs.db', create_if_missing=True)
+        target_rmd160 = 'your_target_rmd160_here'
         with Pool(processes=8) as pool:
             pool.apply_async(baby_step, (2**65, 2**66, db))  # Baby steps range
-            pool.apply_async(giant_step, (2**65, 2**66, db))  # Giant steps range
+            pool.apply_async(giant_step, (2**65, 2**66, db, target_rmd160))  # Giant steps range
             pool.close()
             pool.join()
     except Exception as e:
